@@ -59,6 +59,7 @@
 
 #include "tcclib.h"
 
+void intdiv_test();
 void string_test();
 void expr_test();
 void macro_test();
@@ -154,8 +155,8 @@ static int onetwothree = 123;
 #define B3 4
 #endif
 
-#define __INT64_C(c)	c ## LL
-#define INT64_MIN	(-__INT64_C(9223372036854775807)-1)
+#define __INT64_C(c)    c ## LL
+#define INT64_MIN    (-__INT64_C(9223372036854775807)-1)
 
 int qq(int x)
 {
@@ -166,6 +167,71 @@ int qq(int x)
 #define spin_lock(lock) do { } while (0)
 #define wq_spin_lock spin_lock
 #define TEST2() wq_spin_lock(a)
+
+#define UINT_MAX ((unsigned) -1)
+
+void intdiv_test(void)
+{
+    printf("18/21=%u\n", 18/21);
+    printf("18%21=%u\n", 18%21);
+    printf("41/21=%u\n", 41/21);
+    printf("41%21=%u\n", 41%21);
+    printf("42/21=%u\n", 42/21);
+    printf("42%21=%u\n", 42%21);
+    printf("43/21=%u\n", 43/21);
+    printf("43%21=%u\n", 43%21);
+    printf("126/21=%u\n", 126/21);
+    printf("12%/21=%u\n", 126%21);
+    printf("131/21=%u\n", 131/21);
+    printf("131%21=%u\n", 131%21);
+    printf("(UINT_MAX/2+3)/2=%u\n", (UINT_MAX/2+3)/2);
+    printf("(UINT_MAX/2+3)%2=%u\n", (UINT_MAX/2+3)%2);
+
+    printf("18/-21=%u\n", 18/-21);
+    printf("18%-21=%u\n", 18%-21);
+    printf("41/-21=%u\n", 41/-21);
+    printf("41%-21=%u\n", 41%-21);
+    printf("42/-21=%u\n", 42/-21);
+    printf("42%-21=%u\n", 42%-21);
+    printf("43/-21=%u\n", 43/-21);
+    printf("43%-21=%u\n", 43%-21);
+    printf("126/-21=%u\n", 126/-21);
+    printf("12%/-21=%u\n", 126%-21);
+    printf("131/-21=%u\n", 131/-21);
+    printf("131%-21=%u\n", 131%-21);
+    printf("(UINT_MAX/2+3)/-2=%u\n", (UINT_MAX/2+3)/-2);
+    printf("(UINT_MAX/2+3)%-2=%u\n", (UINT_MAX/2+3)%-2);
+
+    printf("-18/21=%u\n", -18/21);
+    printf("-18%21=%u\n", -18%21);
+    printf("-41/21=%u\n", -41/21);
+    printf("-41%21=%u\n", -41%21);
+    printf("-42/21=%u\n", -42/21);
+    printf("-42%21=%u\n", -42%21);
+    printf("-43/21=%u\n", -43/21);
+    printf("-43%21=%u\n", -43%21);
+    printf("-126/21=%u\n", -126/21);
+    printf("-12%/21=%u\n", -126%21);
+    printf("-131/21=%u\n", -131/21);
+    printf("-131%21=%u\n", -131%21);
+    printf("-(UINT_MAX/2+3)/2=%u\n", (0-(UINT_MAX/2+3))/2);
+    printf("-(UINT_MAX/2+3)%2=%u\n", (0-(UINT_MAX/2+3))%2);
+
+    printf("-18/-21=%u\n", -18/-21);
+    printf("-18%-21=%u\n", -18%-21);
+    printf("-41/-21=%u\n", -41/-21);
+    printf("-41%-21=%u\n", -41%-21);
+    printf("-42/-21=%u\n", -42/-21);
+    printf("-42%-21=%u\n", -42%-21);
+    printf("-43/-21=%u\n", -43/-21);
+    printf("-43%-21=%u\n", -43%-21);
+    printf("-126/-21=%u\n", -126/-21);
+    printf("-12%/-21=%u\n", -126%-21);
+    printf("-131/-21=%u\n", -131/-21);
+    printf("-131%-21=%u\n", -131%-21);
+    printf("-(UINT_MAX/2+3)/-2=%u\n", (0-(UINT_MAX/2+3))/-2);
+    printf("-(UINT_MAX/2+3)%-2=%u\n", (0-(UINT_MAX/2+3))%-2);
+}
 
 void macro_test(void)
 {
@@ -313,6 +379,55 @@ comment
     /* And again when the name and parenthes are separated by a
        comment.  */
     TEST2 /* the comment */ ();
+
+    /* macro_push and macro_pop test */
+    #undef MACRO_TEST
+    #ifdef MACRO_TEST
+        printf("define MACRO_TEST\n");
+    #else
+        printf("undef MACRO_TEST\n");
+    #endif
+
+    #pragma push_macro("MACRO_TEST")
+    #define MACRO_TEST
+    #pragma push_macro("MACRO_TEST")
+    #undef MACRO_TEST
+    #pragma push_macro("MACRO_TEST")
+
+    #pragma pop_macro("MACRO_TEST")
+    #ifdef MACRO_TEST
+        printf("define MACRO_TEST\n");
+    #else
+        printf("undef MACRO_TEST\n");
+    #endif
+
+    #pragma pop_macro("MACRO_TEST")
+    #ifdef MACRO_TEST
+        printf("define MACRO_TEST\n");
+    #else
+        printf("undef MACRO_TEST\n");
+    #endif
+
+    #pragma pop_macro("MACRO_TEST")
+    #ifdef MACRO_TEST
+        printf("define MACRO_TEST\n");
+    #else
+        printf("undef MACRO_TEST\n");
+    #endif
+
+    /* pack test */
+    #pragma pack(push,8)
+    #pragma pack(pop)
+
+/* gcc does not support
+    #define MACRO_TEST_MACRO "MACRO_TEST"
+    #pragma push_macro(MACRO_TEST_MACRO)
+    #undef MACRO_TEST
+    #define MACRO_TEST "macro_test3\n"
+    printf(MACRO_TEST);
+    #pragma pop_macro(MACRO_TEST_MACRO)
+    printf(MACRO_TEST);
+*/
 }
 
 
@@ -619,6 +734,7 @@ int main(int argc, char **argv)
     math_cmp_test();
     callsave_test();
     builtin_frame_address_test();
+    intdiv_test();
     return 0; 
 }
 
@@ -1328,30 +1444,30 @@ struct complexinit {
 
 const static struct complexinit cix[] = {
     [0] = {
-	.a = 2000,
-	.b = (const struct complexinit0[]) {
-		{ 2001, 2002 },
-		{ 2003, 2003 },
-		{}
-	}
+    .a = 2000,
+    .b = (const struct complexinit0[]) {
+        { 2001, 2002 },
+        { 2003, 2003 },
+        {}
+    }
     }
 };
 
 struct complexinit2 {
-	int a;
-	int b[];
+    int a;
+    int b[];
 };
 
 struct complexinit2 cix20;
 
 struct complexinit2 cix21 = {
-	.a = 3000,
-	.b = { 3001, 3002, 3003 }
+    .a = 3000,
+    .b = { 3001, 3002, 3003 }
 };
 
 struct complexinit2 cix22 = {
-	.a = 4000,
-	.b = { 4001, 4002, 4003, 4004, 4005, 4006 }
+    .a = 4000,
+    .b = { 4001, 4002, 4003, 4004, 4005, 4006 }
 };
 
 void init_test(void)
@@ -1448,10 +1564,10 @@ void init_test(void)
     printf("\n");
     /* complex init check */
     printf("cix: %d %d %d %d %d %d %d\n",
-	cix[0].a,
-	cix[0].b[0].a, cix[0].b[0].b,
-	cix[0].b[1].a, cix[0].b[1].b,
-	cix[0].b[2].a, cix[0].b[2].b);
+    cix[0].a,
+    cix[0].b[0].a, cix[0].b[0].b,
+    cix[0].b[1].a, cix[0].b[1].b,
+    cix[0].b[2].a, cix[0].b[2].b);
     printf("cix2: %d %d\n", cix21.b[2], cix22.b[5]);
     printf("sizeof cix20 %d, cix21 %d, sizeof cix22 %d\n", sizeof cix20, sizeof cix21, sizeof cix22);
 }
@@ -1603,21 +1719,31 @@ void prefix ## fcast(type a)\
     double da;\
     LONG_DOUBLE la;\
     int ia;\
+    long long llia;\
     unsigned int ua;\
+    unsigned long long llua;\
     type b;\
     fa = a;\
     da = a;\
     la = a;\
     printf("ftof: %f %f %Lf\n", fa, da, la);\
     ia = (int)a;\
+    llia = (long long)a;\
     ua = (unsigned int)a;\
-    printf("ftoi: %d %u\n", ia, ua);\
+    llua = (unsigned long long)a;\
+    printf("ftoi: %d %u %lld %llu\n", ia, ua, llia, llua);\
     ia = -1234;\
     ua = 0x81234500;\
+    llia = -0x123456789012345LL;\
+    llua = 0xf123456789012345LLU;\
     b = ia;\
     printf("itof: " fmt "\n", b);\
     b = ua;\
     printf("utof: " fmt "\n", b);\
+    b = llia;\
+    printf("lltof: " fmt "\n", b);\
+    b = llua;\
+    printf("ulltof: " fmt "\n", b);\
 }\
 \
 float prefix ## retf(type a) { return a; }\
@@ -1632,6 +1758,47 @@ void prefix ## call(void)\
     printf("strto%s: %f\n", #prefix, (double)strto ## prefix("1.2", NULL));\
 }\
 \
+void prefix ## calc(type x, type y)\
+{\
+    x=x*x;y=y*y;\
+    printf("%d, %d\n", (int)x, (int)y);\
+    x=x-y;y=y-x;\
+    printf("%d, %d\n", (int)x, (int)y);\
+    x=x/y;y=y/x;\
+    printf("%d, %d\n", (int)x, (int)y);\
+    x=x+x;y=y+y;\
+    printf("%d, %d\n", (int)x, (int)y);\
+}\
+\
+void prefix ## signed_zeros(void) \
+{\
+  type x = 0.0, y = -0.0, n, p;\
+  if (x == y)\
+    printf ("Test 1.0 / x != 1.0 / y  returns %d (should be 1).\n",\
+            1.0 / x != 1.0 / y);\
+  else\
+    printf ("x != y; this is wrong!\n");\
+\
+  n = -x;\
+  if (x == n)\
+    printf ("Test 1.0 / x != 1.0 / -x returns %d (should be 1).\n",\
+            1.0 / x != 1.0 / n);\
+  else\
+    printf ("x != -x; this is wrong!\n");\
+\
+  p = +y;\
+  if (x == p)\
+    printf ("Test 1.0 / x != 1.0 / +y returns %d (should be 1).\n",\
+            1.0 / x != 1.0 / p);\
+  else\
+    printf ("x != +y; this is wrong!\n");\
+    p = -y;\
+  if (x == p)\
+    printf ("Test 1.0 / x != 1.0 / -y returns %d (should be 0).\n",\
+            1.0 / x != 1.0 / p);\
+  else\
+    printf ("x != -y; this is wrong!\n");\
+}\
 void prefix ## test(void)\
 {\
     printf("testing '%s'\n", #typename);\
@@ -1641,6 +1808,8 @@ void prefix ## test(void)\
     prefix ## fcast(234.6);\
     prefix ## fcast(-2334.6);\
     prefix ## call();\
+    prefix ## calc(1, 1.0000000000000001);\
+    prefix ## signed_zeros();\
 }
 
 FTEST(f, float, float, "%f")
@@ -2047,7 +2216,8 @@ void whitespace_test(void)
 {
     char *str;
 
-#if 1
+
+#if 1
     pri\
 ntf("whitspace:\n");
 #endif
@@ -2070,7 +2240,8 @@ ntf("min=%d\n", 4);
 ";
     printf("len1=%d str[0]=%d\n", strlen(str), str[0]);
 #endif
-    printf("len1=%d\n", strlen("a
+    printf("len1=%d\n", strlen("
+a
 "));
 #endif /* ACCEPT_CR_IN_STRINGS */
 }
@@ -2113,7 +2284,7 @@ void old_style_function(void)
 
 void alloca_test()
 {
-#if defined __i386__ || defined __x86_64__
+#if defined __i386__ || defined __x86_64__ || defined __arm__
     char *p = alloca(16);
     strcpy(p,"123456789012345");
     printf("alloca: p is %s\n", p);
@@ -2146,7 +2317,7 @@ void c99_vla_test(int size1, int size2)
     printf("%s\n", (sizeof tab1 == size1 * size2 * 2 * sizeof(int)) ? "PASSED" : "FAILED");
     tab1_ptr = tab1;
     tab2_ptr = tab2;
-    printf("Test C99 VLA 2 (ptrs substract): ");
+    printf("Test C99 VLA 2 (ptrs subtract): ");
     printf("%s\n", (tab2 - tab1 == (tab2_ptr - tab1_ptr) / (sizeof(int) * 2)) ? "PASSED" : "FAILED");
     printf("Test C99 VLA 3 (ptr add): ");
     printf("%s\n", &tab1[5][1] == (tab1_ptr + (5 * 2 + 1) * sizeof(int)) ? "PASSED" : "FAILED");
@@ -2295,21 +2466,21 @@ static char * strncat1(char * dest,const char * src,size_t count)
 {
 int d0, d1, d2, d3;
 __asm__ __volatile__(
-	"repne\n\t"
-	"scasb\n\t"
-	"decl %1\n\t"
-	"movl %8,%3\n"
-	"1:\tdecl %3\n\t"
-	"js 2f\n\t"
-	"lodsb\n\t"
-	"stosb\n\t"
-	"testb %%al,%%al\n\t"
-	"jne 1b\n"
-	"2:\txorl %2,%2\n\t"
-	"stosb"
-	: "=&S" (d0), "=&D" (d1), "=&a" (d2), "=&c" (d3)
-	: "0" (src),"1" (dest),"2" (0),"3" (0xffffffff), "g" (count)
-	: "memory");
+    "repne\n\t"
+    "scasb\n\t"
+    "decl %1\n\t"
+    "movl %8,%3\n"
+    "1:\tdecl %3\n\t"
+    "js 2f\n\t"
+    "lodsb\n\t"
+    "stosb\n\t"
+    "testb %%al,%%al\n\t"
+    "jne 1b\n"
+    "2:\txorl %2,%2\n\t"
+    "stosb"
+    : "=&S" (d0), "=&D" (d1), "=&a" (d2), "=&c" (d3)
+    : "0" (src),"1" (dest),"2" (0),"3" (0xffffffff), "g" (count)
+    : "memory");
 return dest;
 }
 
@@ -2317,20 +2488,20 @@ static char * strncat2(char * dest,const char * src,size_t count)
 {
 int d0, d1, d2, d3;
 __asm__ __volatile__(
-	"repne scasb\n\t" /* one-line repne prefix + string op */
-	"decl %1\n\t"
-	"movl %8,%3\n"
-	"1:\tdecl %3\n\t"
-	"js 2f\n\t"
-	"lodsb\n\t"
-	"stosb\n\t"
-	"testb %%al,%%al\n\t"
-	"jne 1b\n"
-	"2:\txorl %2,%2\n\t"
-	"stosb"
-	: "=&S" (d0), "=&D" (d1), "=&a" (d2), "=&c" (d3)
-	: "0" (src),"1" (dest),"2" (0),"3" (0xffffffff), "g" (count)
-	: "memory");
+    "repne scasb\n\t" /* one-line repne prefix + string op */
+    "decl %1\n\t"
+    "movl %8,%3\n"
+    "1:\tdecl %3\n\t"
+    "js 2f\n\t"
+    "lodsb\n\t"
+    "stosb\n\t"
+    "testb %%al,%%al\n\t"
+    "jne 1b\n"
+    "2:\txorl %2,%2\n\t"
+    "stosb"
+    : "=&S" (d0), "=&D" (d1), "=&a" (d2), "=&c" (d3)
+    : "0" (src),"1" (dest),"2" (0),"3" (0xffffffff), "g" (count)
+    : "memory");
 return dest;
 }
 
@@ -2338,17 +2509,17 @@ static inline void * memcpy1(void * to, const void * from, size_t n)
 {
 int d0, d1, d2;
 __asm__ __volatile__(
-	"rep ; movsl\n\t"
-	"testb $2,%b4\n\t"
-	"je 1f\n\t"
-	"movsw\n"
-	"1:\ttestb $1,%b4\n\t"
-	"je 2f\n\t"
-	"movsb\n"
-	"2:"
-	: "=&c" (d0), "=&D" (d1), "=&S" (d2)
-	:"0" (n/4), "q" (n),"1" ((long) to),"2" ((long) from)
-	: "memory");
+    "rep ; movsl\n\t"
+    "testb $2,%b4\n\t"
+    "je 1f\n\t"
+    "movsw\n"
+    "1:\ttestb $1,%b4\n\t"
+    "je 2f\n\t"
+    "movsb\n"
+    "2:"
+    : "=&c" (d0), "=&D" (d1), "=&S" (d2)
+    :"0" (n/4), "q" (n),"1" ((long) to),"2" ((long) from)
+    : "memory");
 return (to);
 }
 
@@ -2356,38 +2527,38 @@ static inline void * memcpy2(void * to, const void * from, size_t n)
 {
 int d0, d1, d2;
 __asm__ __volatile__(
-	"rep movsl\n\t"  /* one-line rep prefix + string op */
-	"testb $2,%b4\n\t"
-	"je 1f\n\t"
-	"movsw\n"
-	"1:\ttestb $1,%b4\n\t"
-	"je 2f\n\t"
-	"movsb\n"
-	"2:"
-	: "=&c" (d0), "=&D" (d1), "=&S" (d2)
-	:"0" (n/4), "q" (n),"1" ((long) to),"2" ((long) from)
-	: "memory");
+    "rep movsl\n\t"  /* one-line rep prefix + string op */
+    "testb $2,%b4\n\t"
+    "je 1f\n\t"
+    "movsw\n"
+    "1:\ttestb $1,%b4\n\t"
+    "je 2f\n\t"
+    "movsb\n"
+    "2:"
+    : "=&c" (d0), "=&D" (d1), "=&S" (d2)
+    :"0" (n/4), "q" (n),"1" ((long) to),"2" ((long) from)
+    : "memory");
 return (to);
 }
 
 static __inline__ void sigaddset1(unsigned int *set, int _sig)
 {
-	__asm__("btsl %1,%0" : "=m"(*set) : "Ir"(_sig - 1) : "cc");
+    __asm__("btsl %1,%0" : "=m"(*set) : "Ir"(_sig - 1) : "cc");
 }
 
 static __inline__ void sigdelset1(unsigned int *set, int _sig)
 {
-	asm("btrl %1,%0" : "=m"(*set) : "Ir"(_sig - 1) : "cc");
+    asm("btrl %1,%0" : "=m"(*set) : "Ir"(_sig - 1) : "cc");
 }
 
 static __inline__ __const__ unsigned int swab32(unsigned int x)
 {
-	__asm__("xchgb %b0,%h0\n\t"	/* swap lower bytes	*/
-		"rorl $16,%0\n\t"	/* swap words		*/
-		"xchgb %b0,%h0"		/* swap higher bytes	*/
-		:"=q" (x)
-		: "0" (x));
-	return x;
+    __asm__("xchgb %b0,%h0\n\t"    /* swap lower bytes    */
+        "rorl $16,%0\n\t"    /* swap words        */
+        "xchgb %b0,%h0"        /* swap higher bytes    */
+        :"=q" (x)
+        : "0" (x));
+    return x;
 }
 
 static __inline__ unsigned long long mul64(unsigned int a, unsigned int b)
@@ -2464,7 +2635,6 @@ int constant_p_var;
 
 void builtin_test(void)
 {
-#if GCC_MAJOR >= 3
     COMPAT_TYPE(int, int);
     COMPAT_TYPE(int, unsigned int);
     COMPAT_TYPE(int, char);
@@ -2474,9 +2644,9 @@ void builtin_test(void)
     COMPAT_TYPE(int *, void *);
     COMPAT_TYPE(int *, const int *);
     COMPAT_TYPE(char *, unsigned char *);
+    COMPAT_TYPE(char, unsigned char);
 /* space is needed because tcc preprocessor introduces a space between each token */
-    COMPAT_TYPE(char * *, void *); 
-#endif
+    COMPAT_TYPE(char **, void *);
     printf("res = %d\n", __builtin_constant_p(1));
     printf("res = %d\n", __builtin_constant_p(1 + 2));
     printf("res = %d\n", __builtin_constant_p(&constant_p_var));
@@ -2516,23 +2686,23 @@ int weak_toolate() { return 0; }
 
 void __attribute__((weak)) weak_test(void)
 {
-	printf("weak_f1=%d\n", weak_f1 ? weak_f1() : 123);
-	printf("weak_f2=%d\n", weak_f2 ? weak_f2() : 123);
-	printf("weak_f3=%d\n", weak_f3 ? weak_f3() : 123);
-	printf("weak_v1=%d\n",&weak_v1 ? weak_v1   : 123);
-	printf("weak_v2=%d\n",&weak_v2 ? weak_v2   : 123);
-	printf("weak_v3=%d\n",&weak_v3 ? weak_v3   : 123);
+    printf("weak_f1=%d\n", weak_f1 ? weak_f1() : 123);
+    printf("weak_f2=%d\n", weak_f2 ? weak_f2() : 123);
+    printf("weak_f3=%d\n", weak_f3 ? weak_f3() : 123);
+    printf("weak_v1=%d\n",&weak_v1 ? weak_v1   : 123);
+    printf("weak_v2=%d\n",&weak_v2 ? weak_v2   : 123);
+    printf("weak_v3=%d\n",&weak_v3 ? weak_v3   : 123);
 
-	printf("weak_fpa=%d\n",&weak_fpa ? weak_fpa() : 123);
-	printf("weak_fpb=%d\n",&weak_fpb ? weak_fpb() : 123);
-	printf("weak_fpc=%d\n",&weak_fpc ? weak_fpc() : 123);
-	
-	printf("weak_asm_f1=%d\n", weak_asm_f1 != NULL);
-	printf("weak_asm_f2=%d\n", weak_asm_f2 != NULL);
-	printf("weak_asm_f3=%d\n", weak_asm_f3 != NULL);
-	printf("weak_asm_v1=%d\n",&weak_asm_v1 != NULL);
-	printf("weak_asm_v2=%d\n",&weak_asm_v2 != NULL);
-	printf("weak_asm_v3=%d\n",&weak_asm_v3 != NULL);
+    printf("weak_fpa=%d\n",&weak_fpa ? weak_fpa() : 123);
+    printf("weak_fpb=%d\n",&weak_fpb ? weak_fpb() : 123);
+    printf("weak_fpc=%d\n",&weak_fpc ? weak_fpc() : 123);
+    
+    printf("weak_asm_f1=%d\n", weak_asm_f1 != NULL);
+    printf("weak_asm_f2=%d\n", weak_asm_f2 != NULL);
+    printf("weak_asm_f3=%d\n", weak_asm_f3 != NULL);
+    printf("weak_asm_v1=%d\n",&weak_asm_v1 != NULL);
+    printf("weak_asm_v2=%d\n",&weak_asm_v2 != NULL);
+    printf("weak_asm_v3=%d\n",&weak_asm_v3 != NULL);
 }
 
 int __attribute__((weak)) weak_f2() { return 222; }
@@ -2686,7 +2856,7 @@ double get100 () { return 100.0; }
 
 void callsave_test(void)
 {
-#if defined __i386__ || defined __x86_64__
+#if defined __i386__ || defined __x86_64__ || defined __arm__
   int i, s; double *d; double t;
   s = sizeof (double);
   printf ("callsavetest: %d\n", s);
@@ -2715,16 +2885,17 @@ void bfa2(ptrdiff_t str_offset)
 void bfa1(ptrdiff_t str_offset)
 {
     printf("bfa1: %s\n", (char *)__builtin_frame_address(1) + str_offset);
-#if defined(__arm__) && !defined(__GNUC__)
     bfa2(str_offset);
-#endif
 }
 
 void builtin_frame_address_test(void)
 {
+/* builtin_frame_address fails on ARM with gcc which make test3 fail */
+#ifndef __arm__
     char str[] = "__builtin_frame_address";
     char *fp0 = __builtin_frame_address(0);
 
     printf("str: %s\n", str);
     bfa1(str-fp0);
+#endif
 }

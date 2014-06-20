@@ -27,7 +27,7 @@ char my_program_1[] =
 char my_program_2[] =
 "int foo(int n)\n"
 "{\n"
-"    printf(\"Hello World!\\n\");\n"
+"    printf(\"Hello World! #1\\n\");\n"
 "    printf(\"fib(%d) = %d\\n\", n, fib(n));\n"
 "    printf(\"add(%d, %d) = %d\\n\", n, 2 * n, add(n, 2 * n));\n"
 "    return 0;\n"
@@ -35,7 +35,7 @@ char my_program_2[] =
 char my_program_3[] =
 "int foo3(int n)\n"
 "{\n"
-"    printf(\"Hello World!\\n\");\n"
+"    printf(\"Hello World! #2\\n\");\n"
 "    printf(\"fib(%d) = %d\\n\", n, fib(n));\n"
 "    printf(\"add(%d, %d) = %d\\n\", n, 2 * n, add(n, 2 * n));\n"
 "    return 0;\n"
