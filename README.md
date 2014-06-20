@@ -1,5 +1,5 @@
 Pitu
 ====
 
-  make pitu
+  make pitu ;
   ./pitu lib_path=tinycc
